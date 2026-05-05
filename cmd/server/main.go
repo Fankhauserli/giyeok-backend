@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Fankhauserli/giyeok-backend/internal/db"
 	"github.com/Fankhauserli/giyeok-backend/internal/handlers"
 	"github.com/Fankhauserli/giyeok-backend/internal/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -27,6 +28,11 @@ func main() {
 
 	if err := pool.Ping(ctx); err != nil {
 		log.Fatalf("Unable to ping database: %v\n", err)
+	}
+
+	// Initialize database schema if it doesn't exist
+	if err := db.InitializeSchema(ctx, pool); err != nil {
+		log.Fatalf("Unable to initialize database schema: %v\n", err)
 	}
 
 	h := handlers.NewHandler(pool)
