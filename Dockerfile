@@ -6,14 +6,14 @@ WORKDIR /app
 # Copy go.mod and go.sum
 COPY go.mod go.sum ./
 
-# Copy vendor directory for offline build
-COPY vendor ./vendor
+# Download dependencies
+RUN go mod download
 
 # Copy source code
 COPY . .
 
 # Build the application as a static binary
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -o main ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/server
 
 # Final stage
 FROM alpine:latest
