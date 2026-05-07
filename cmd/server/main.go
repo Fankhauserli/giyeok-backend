@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,12 @@ import (
 )
 
 func main() {
+	migrateOnly := flag.Bool("migrate", false, "Run database migrations and exit")
+	flag.Parse()
+
+	log.Printf("Flag migrateOnly: %v", *migrateOnly)
+	log.Printf("Args: %v", flag.Args())
+
 	ctx := context.Background()
 
 	dbURL := os.Getenv("DATABASE_URL")
@@ -33,6 +40,11 @@ func main() {
 	// Initialize database schema if it doesn't exist
 	if err := db.InitializeSchema(ctx, pool); err != nil {
 		log.Fatalf("Unable to initialize database schema: %v\n", err)
+	}
+
+	if *migrateOnly {
+		log.Println("Migration completed successfully. Exiting.")
+		return
 	}
 
 	h := handlers.NewHandler(pool)
